@@ -29,7 +29,7 @@ ARGS   =
 
 # Additional linker libraries
 LIBS = $(LIBFLAGS)
-FRAMEWORKS = -framework OpenGL -framework SFML -framework sfml-window
+FRAMEWORKS = -framework OpenGL -framework sfml -framework sfml-window -framework sfml-graphics -framework sfml-system
 
 # -------------------------------------------------------------
 

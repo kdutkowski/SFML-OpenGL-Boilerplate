@@ -13,28 +13,50 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <iomanip>
 
 #include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+
+#define FPS_MAX 60
+
+#define mIsKey(x,y) (x.Key.Code == Key::y)
 
 using namespace std;
+using namespace sf;
 
 bool running = true;
 int width, height, colorDepth;
 string windowTitle;
-sf::Event event;
-sf::Window *app;
+Event event;
+Font hudFont;
+String text;
+float tick, fps;
+string fpsText;
+stringstream fpsStream;
 
-void initialize();
+void initialize(RenderWindow &app);
 void setupGL(int width, int height);
-void processEvent(sf::Event e);
+void processEvent(Event e);
 
-void initialize()
+void initialize(RenderWindow &app)
 {
-   // Set up window.
-   app = new sf::Window(sf::VideoMode(width, height, colorDepth),
-         windowTitle);
    // Setup OpenGL.
    setupGL(width, height);
+
+   if (!hudFont.LoadFromFile("resources/Orbitron/orbitron-medium.otf"))
+   {
+      perror("loading font");
+      exit(EXIT_FAILURE);
+   }
+
+   text.SetFont(hudFont);
+   text.SetScale(0.5f, 0.5f);
+   text.Move(width - 150.f, height - 30.f);
+
+   app.SetFramerateLimit(FPS_MAX);
 }
 
 void setupGL(int width, int height)
@@ -50,18 +72,18 @@ void setupGL(int width, int height)
    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
 
-void processEvent(sf::Event e)
+void processEvent(Event e)
 {
    // Window closed
-   if (e.Type == sf::Event::Closed)
+   if (e.Type == Event::Closed)
    {
       running = false;
    }
 
    // Key pressed
-   if (e.Type == sf::Event::KeyPressed)
+   if (e.Type == Event::KeyPressed)
    {
-      if (e.Key.Code == sf::Key::Escape)
+      if (mIsKey(e, Q))
       {
          running = false;
       }
@@ -74,24 +96,34 @@ int main(int argc, char **argv)
    height = 600;
    colorDepth = 32;
    windowTitle = "I LIKE TURTLES";
+   tick = 0.f;
+   // Set up window.
+   RenderWindow app(VideoMode(width, height, colorDepth), windowTitle);
 
    // Initialize OpenGL.
-   initialize();
+   initialize(app);
 
    // Main loop.
    while (running)
    {
       // Process events.
-      while (app->GetEvent(event))
+      while (app.GetEvent(event))
       {
          processEvent(event);
       }
+      tick = app.GetFrameTime();
+      fps = 1.f / tick;
+      fpsStream.str(string());
+      fpsStream << "FPS: " << fixed << setprecision(2) << fps;
+      text.SetText(fpsStream.str());
+      app.Clear();
+      app.Draw(text);
       // Update the main window.
-      app->Display();
+      app.Display();
    }
    
    // Clean up.
-   delete app;
+   app.Close();
 
    // Exit.
    return EXIT_SUCCESS;
