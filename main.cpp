@@ -41,6 +41,7 @@ RenderWindow *app;
 
 void initialize();
 void setupGL(int width, int height);
+void resize();
 void controlKeys();
 void triggerKeyDown(Event e);
 void triggerKeyUp(Event e);
@@ -76,6 +77,12 @@ void setupGL(int width, int height)
    glLoadIdentity();
    glClearColor(0, 0, 0, 0);
    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+}
+
+void resize()
+{
+   cout << "Window resized to " << app->GetWidth() << " x " <<
+      app->GetHeight() << endl;
 }
 
 void controlKeys()
@@ -124,13 +131,18 @@ void triggerKeyUp(Event e)
 
 void processEvent(Event e)
 {
-   // Window closed
+   // Window closed.
    if (e.Type == Event::Closed)
    {
       running = false;
    }
 
-   // Key pressed
+   // Window resized.
+   if (e.Type == Event::Resized)
+   {
+      resize();
+   }
+
    /*
       if (e.Type == Event::KeyPressed ||
       e.Type == Event::KeyReleased ||
@@ -140,6 +152,7 @@ void processEvent(Event e)
       e.Type == Event::JoyButtonReleased)
    */
 
+   // Key pressed.
    if (e.Type == Event::KeyPressed)
    {
       triggerKeyDown(e);
