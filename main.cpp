@@ -37,18 +37,21 @@ int width, height, colorDepth;
 string windowTitle;
 Font hudFont;
 String text;
-float lastTick, tick, fps;
+float tick, fps;
 stringstream fpsStream;
 RenderWindow *app;
+sf::Clock myClock;
 
 void initialize();
 void setupGL(int width, int height);
-void resize();
+void resize(Event e);
 void controlKeys();
 void triggerKeyDown(Event e);
 void triggerKeyUp(Event e);
 void processEvent(Event e);
 void updateFramerate();
+//void drawText(String textToDraw);
+void drawText(vector<String> textVec);
 
 void initialize()
 {
@@ -64,27 +67,32 @@ void initialize()
    text.SetFont(hudFont);
    text.SetScale(0.5f, 0.5f);
    text.Move(width - 150.f, height - 30.f);
+   text.SetColor(Color(255, 255, 255));
 
    app->SetFramerateLimit(FPS_MAX);
 }
 
 void setupGL(int width, int height)
 {
-   glViewport(0, 0, width, height);
+   // Set color and depth clear value
+   glClearDepth(1.f);
+   glClearColor(0.f, 0.f, 0.f, 0.f);
 
+   // Enable Z-buffer read and write
+   glEnable(GL_DEPTH_TEST);
+   glDepthMask(GL_TRUE);
+
+   // Setup a perspective projection
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   gluPerspective(45.0f, (GLfloat)width/(GLfloat)height, 0.1f, 5000.0f);
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
-   glClearColor(0, 0, 0, 0);
-   glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+   gluPerspective(90.f, 1.f, 1.f, 500.f);
 }
 
-void resize()
+void resize(Event e)
 {
    cout << "Window resized to " << app->GetWidth() << " x " <<
       app->GetHeight() << endl;
+   glViewport(0, 0, e.Size.Width, e.Size.Height);
 }
 
 void controlKeys()
@@ -142,7 +150,7 @@ void processEvent(Event e)
    // Window resized.
    if (e.Type == Event::Resized)
    {
-      resize();
+      resize(e);
    }
 
    // Key pressed.
@@ -162,7 +170,7 @@ void processEvent(Event e)
       e.Type == Event::MouseButtonReleased ||
       e.Type == Event::JoyButtonPressed ||
       e.Type == Event::JoyButtonReleased)
-   */
+      */
 }
 
 void updateFramerate()
@@ -173,7 +181,38 @@ void updateFramerate()
    fpsStream << "FPS: " << fixed << setprecision(2) << fps;
    text.SetText(fpsStream.str());
    // Display the framerate.
-   app->Draw(text);
+   //app->Draw(text);
+   //drawText(text);
+}
+
+void drawText(vector<String> textVec)
+{
+   // Before drawing text.
+   glMatrixMode(GL_MODELVIEW);
+   glPushMatrix();
+   glMatrixMode(GL_PROJECTION);
+   glPushMatrix();
+   glPushAttrib(GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT |
+         GL_TEXTURE_BIT | GL_TRANSFORM_BIT | GL_VIEWPORT_BIT);
+
+   glDisable(GL_ALPHA_TEST);
+   glDisable(GL_DEPTH_TEST);
+   glDisable(GL_LIGHTING);
+   glDisable(GL_DEPTH_TEST);
+
+   // Draw text.
+   for (vector<String>::iterator i = textVec.begin(); i != textVec.end(); ++i)
+   {
+      app->Draw((*i));
+   }
+
+   // After drawing the text
+   glEnable(GL_DEPTH_TEST);
+   glMatrixMode(GL_PROJECTION);
+   glPopMatrix();
+   glMatrixMode(GL_MODELVIEW);
+   glPopMatrix();
+   glPopAttrib();
 }
 
 int main(int argc, char **argv)
@@ -183,7 +222,6 @@ int main(int argc, char **argv)
    colorDepth = 32;
    windowTitle = "I LIKE TURTLES";
    tick = 0.f;
-   lastTick = 0.f;
    Event event;
 
    // Set up window.
@@ -203,13 +241,14 @@ int main(int argc, char **argv)
       {
          processEvent(event);
       }
-   
+
       tick = app->GetFrameTime();
-      
+
       // Clear the window.
       app->Clear();
+
       // Draw the game (I just lost). This is OpenGL.
-      theGame.update(tick - lastTick);
+      theGame.update(tick);
       theGame.draw();
 
       if (showFramerate)
@@ -219,8 +258,6 @@ int main(int argc, char **argv)
 
       // Update the main window. This is SFML.
       app->Display();
-
-      lastTick = tick;
    }
 
    // Clean up.

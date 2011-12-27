@@ -8,6 +8,8 @@
 
 #include <map>
 #include <string>
+#include <sstream>
+#include <iomanip>
 
 #include <SFML/Graphics.hpp>
 
@@ -19,12 +21,17 @@ class Game {
       Game(sf::RenderWindow *_window);
       virtual ~Game() {};
       void addText(std::string varName, sf::String varText);
+      void updateText(std::string varName, std::string varText);
+      void updateFramerate(float tick);
       void update(float tick);
       void drawAllText();
       void draw();
    private:
       sf::RenderWindow *window;
       std::map<std::string, sf::String> textMap;
+      std::vector<GLuint> bufferVec;
+      std::stringstream fpsStream;
+      sf::Font hudFont;
 };
 
 #endif
