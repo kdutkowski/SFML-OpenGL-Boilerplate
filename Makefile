@@ -9,6 +9,7 @@
 # entire risk of using the Software.
 
 CC     = g++ -m32
+#CC     = gfilt /cand:L -m32
 CP     = cp
 RM     = rm -rf
 KILL   = killall -9

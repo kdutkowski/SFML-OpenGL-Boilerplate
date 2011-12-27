@@ -21,6 +21,8 @@
 #include <SFML/System.hpp>
 #include <SFML/Window/Input.hpp>
 
+#include "Game.h"
+
 #define FPS_MAX 60
 
 //#define mIsKey(x,y) (x.Key.Code == Key::y)
@@ -35,7 +37,7 @@ int width, height, colorDepth;
 string windowTitle;
 Font hudFont;
 String text;
-float tick, fps;
+float lastTick, tick, fps;
 stringstream fpsStream;
 RenderWindow *app;
 
@@ -143,15 +145,6 @@ void processEvent(Event e)
       resize();
    }
 
-   /*
-      if (e.Type == Event::KeyPressed ||
-      e.Type == Event::KeyReleased ||
-      e.Type == Event::MouseButtonPressed ||
-      e.Type == Event::MouseButtonReleased ||
-      e.Type == Event::JoyButtonPressed ||
-      e.Type == Event::JoyButtonReleased)
-   */
-
    // Key pressed.
    if (e.Type == Event::KeyPressed)
    {
@@ -161,12 +154,20 @@ void processEvent(Event e)
    {
       triggerKeyUp(e);
    }
+
+   /*
+      if (e.Type == Event::KeyPressed ||
+      e.Type == Event::KeyReleased ||
+      e.Type == Event::MouseButtonPressed ||
+      e.Type == Event::MouseButtonReleased ||
+      e.Type == Event::JoyButtonPressed ||
+      e.Type == Event::JoyButtonReleased)
+   */
 }
 
 void updateFramerate()
 {
    // Get framerate.
-   tick = app->GetFrameTime();
    fps = 1.f / tick;
    fpsStream.str(string());
    fpsStream << "FPS: " << fixed << setprecision(2) << fps;
@@ -182,10 +183,13 @@ int main(int argc, char **argv)
    colorDepth = 32;
    windowTitle = "I LIKE TURTLES";
    tick = 0.f;
+   lastTick = 0.f;
    Event event;
 
    // Set up window.
    app = new RenderWindow(VideoMode(width, height, colorDepth), windowTitle);
+
+   Game theGame(app);
 
    // Initialize OpenGL.
    initialize();
@@ -193,21 +197,30 @@ int main(int argc, char **argv)
    // Main loop.
    while (running)
    {
-      // Clear the window.
-      app->Clear();
-
       // Process events.
       controlKeys();
       while (app->GetEvent(event))
       {
          processEvent(event);
       }
+   
+      tick = app->GetFrameTime();
+      
+      // Clear the window.
+      app->Clear();
+      // Draw the game (I just lost). This is OpenGL.
+      theGame.update(tick - lastTick);
+      theGame.draw();
+
       if (showFramerate)
       {
          updateFramerate();
       }
-      // Update the main window.
+
+      // Update the main window. This is SFML.
       app->Display();
+
+      lastTick = tick;
    }
 
    // Clean up.
