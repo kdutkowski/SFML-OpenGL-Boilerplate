@@ -1,3 +1,10 @@
+/**
+ * The Control class.
+ * Ideally, all mouse/keyboard controls will go here.
+ * @author Chris Brenton
+ * @date 1-12-12
+ */
+
 #ifndef __CONTROL_H
 #define __CONTROL_H
 
@@ -7,6 +14,7 @@
 #include <SFML/Window/Input.hpp>
 
 #include "Game.h"
+#include "Keymap.h"
 
 class Control {
    public:

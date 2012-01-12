@@ -1,5 +1,6 @@
 /**
  * I lost again.
+ * Times this header has made me lose (started 1-12-12): 2
  * @author Chris Brenton
  * @date 12-26-11
  */
@@ -10,7 +11,7 @@ using namespace sf;
 
 Game::Game(RenderWindow *_window) : window(_window)
 {
-   if (!hudFont.LoadFromFile("resources/Orbitron/orbitron-medium.otf"))
+   if (!hudFont.LoadFromFile(DEFAULT_FONT))
    {
       perror("loading font");
       exit(EXIT_FAILURE);
@@ -20,7 +21,7 @@ Game::Game(RenderWindow *_window) : window(_window)
    fpsText.SetFont(hudFont);
    fpsText.SetScale(0.5f, 0.5f);
    fpsText.Move(window->GetWidth() - 150.f, window->GetHeight() - 30.f);
-   fpsText.SetColor(Color(255, 255, 255));
+   fpsText.SetColor(Color(COLOR_MAX, COLOR_MAX, COLOR_MAX));
 
    addText("fps", fpsText);
 }
@@ -39,7 +40,7 @@ void Game::toggleTextVisibility(std::string varName)
    // TODO: Make this allow partial text transparency.
    if (a == 0)
    {
-      newColor.a = 255;
+      newColor.a = COLOR_MAX;
    }
    else
    {

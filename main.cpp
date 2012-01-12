@@ -21,6 +21,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include "Globals.h"
 #include "Game.h"
 #include "Control.h"
 
@@ -54,7 +55,7 @@ void initialize()
    // Setup OpenGL.
    setupGL(width, height);
 
-   if (!hudFont.LoadFromFile("resources/Orbitron/orbitron-medium.otf"))
+   if (!hudFont.LoadFromFile(DEFAULT_FONT))
    {
       perror("loading font");
       exit(EXIT_FAILURE);

@@ -16,6 +16,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "Globals.h"
+
 class Game {
    public:
       Game(sf::RenderWindow *_window);

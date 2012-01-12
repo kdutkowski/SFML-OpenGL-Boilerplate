@@ -1,7 +1,9 @@
-#include "Control.h"
+/**
+ * @author Chris Brenton
+ * @date 1-12-12
+ */
 
-//#define mIsKey(x,y) (x.Key.Code == Key::y)
-#define mIsKey(x,y) (x.IsKeyDown(Key::y))
+#include "Control.h"
 
 using namespace std;
 using namespace sf;
@@ -11,31 +13,45 @@ Control::Control(RenderWindow *windowPtr, Game *gamePtr) :
 {
 }
 
+/**
+ * "Control" keys are ones that should be handled even when focus is lost. For
+ * example, if the player is holding down the "move forward" key and accidentally
+ * clicks outside of the window, they should not continue to move forward if the key
+ * is released. The handlers for these will be called on keypress; they do not have
+ * to be polled. Key definitions are in "Keymap.h".
+ */
 void Control::controlKeys()
 {
    const Input& input = boundWindow->GetInput();
    // Keys that are used as controls go here (i.e. activate while held).
-   if (mIsKey(input,W))
+   if (IS_MOVE_FORWARD)
    {
       cout << "W" << endl;
    }
-   if (mIsKey(input,A))
+   if (IS_MOVE_BACK)
    {
       cout << "A" << endl;
    }
-   if (mIsKey(input,S))
+   if (IS_MOVE_LEFT)
    {
       cout << "S" << endl;
    }
-   if (mIsKey(input,D))
+   if (IS_MOVE_RIGHT)
    {
       cout << "D" << endl;
    }
-   if (input.IsMouseButtonDown(Mouse::Left))
+   if (IS_CLICK)
    {
       cout << "LEFT MOUSE" << endl;
    }
-
+   if (IS_RCLICK)
+   {
+      cout << "RIGHT MOUSE" << endl;
+   }
+   if (IS_MCLICK)
+   {
+      cout << "MIDDLE MOUSE" << endl;
+   }
 }
 
 void Control::triggerKeyDown(Event e)
