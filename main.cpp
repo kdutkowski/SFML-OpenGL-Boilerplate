@@ -11,6 +11,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <getopt.h>
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -33,11 +34,11 @@ using namespace sf;
 
 bool running = true;
 bool showFramerate = true;
+bool novid = false;
 int width, height, colorDepth;
 string windowTitle;
 Font hudFont;
-String text;
-float tick, fps;
+float tick;
 stringstream fpsStream;
 RenderWindow *app;
 sf::Clock myClock;
@@ -49,8 +50,6 @@ void controlKeys();
 void triggerKeyDown(Event e);
 void triggerKeyUp(Event e);
 void processEvent(Event e);
-void updateFramerate();
-//void drawText(String textToDraw);
 void drawText(vector<String> textVec);
 
 void initialize()
@@ -63,11 +62,6 @@ void initialize()
       perror("loading font");
       exit(EXIT_FAILURE);
    }
-
-   text.SetFont(hudFont);
-   text.SetScale(0.5f, 0.5f);
-   text.Move(width - 150.f, height - 30.f);
-   text.SetColor(Color(255, 255, 255));
 
    app->SetFramerateLimit(FPS_MAX);
 }
@@ -135,18 +129,13 @@ void triggerKeyUp(Event e)
    // Same as triggerKeyDown, but for keys that trigger on release.
    if (e.Key.Code == Key::Q)
    {
-      running = false;
+      //running = false;
+      app->Close();
    }
 }
 
 void processEvent(Event e)
 {
-   // Window closed.
-   if (e.Type == Event::Closed)
-   {
-      running = false;
-   }
-
    // Window resized.
    if (e.Type == Event::Resized)
    {
@@ -171,18 +160,6 @@ void processEvent(Event e)
       e.Type == Event::JoyButtonPressed ||
       e.Type == Event::JoyButtonReleased)
       */
-}
-
-void updateFramerate()
-{
-   // Get framerate.
-   fps = 1.f / tick;
-   fpsStream.str(string());
-   fpsStream << "FPS: " << fixed << setprecision(2) << fps;
-   text.SetText(fpsStream.str());
-   // Display the framerate.
-   //app->Draw(text);
-   //drawText(text);
 }
 
 void drawText(vector<String> textVec)
@@ -224,8 +201,43 @@ int main(int argc, char **argv)
    tick = 0.f;
    Event event;
 
+   // Parse and handle command line arguments.
+   struct option longOptions[] =
+   {
+      {"debug", 0, 0, 'd'},
+      {"novid", 0, 0, 'n'},
+      {0, 0, 0, 0}
+   };
+   int optionIndex = 0;
+   int optResult = -1;
+
+   do
+   {
+      optResult = getopt_long (argc, argv, "dn", longOptions, &optionIndex);
+      switch (optResult)
+      {
+      case 0:
+         printf ("option %s (%d)", longOptions[optionIndex].name, optind);
+         if (optarg)
+         {
+            printf (" with arg %s", optarg);
+         }
+         printf ("\n");
+         break;
+      case 'n':
+         printf("-n novid flag\n");
+         novid = true;
+         break;
+      case 'd':
+         printf("debug flag\n");
+         break;
+      }
+   } while (optResult != -1);
+
    // Set up window.
    app = new RenderWindow(VideoMode(width, height, colorDepth), windowTitle);
+
+   app->Show(!novid);
 
    Game theGame(app);
 
@@ -233,7 +245,7 @@ int main(int argc, char **argv)
    initialize();
 
    // Main loop.
-   while (running)
+   while (app->IsOpened())
    {
       // Process events.
       controlKeys();
@@ -251,13 +263,11 @@ int main(int argc, char **argv)
       theGame.update(tick);
       theGame.draw();
 
-      if (showFramerate)
-      {
-         updateFramerate();
-      }
-
       // Update the main window. This is SFML.
-      app->Display();
+      if (!novid)
+      {
+         app->Display();
+      }
    }
 
    // Clean up.
