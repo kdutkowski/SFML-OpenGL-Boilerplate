@@ -6,6 +6,9 @@
  * @date 12-26-11
  */
 
+#ifndef __GAME_H
+#define __GAME_H
+
 #include <map>
 #include <string>
 #include <sstream>
@@ -13,17 +16,16 @@
 
 #include <SFML/Graphics.hpp>
 
-#ifndef __GAME_H
-#define __GAME_H
-
 class Game {
    public:
       Game(sf::RenderWindow *_window);
       virtual ~Game() {};
       void addText(std::string varName, sf::String varText);
+      void toggleTextVisibility(std::string varName);
       void updateText(std::string varName, std::string varText);
       void updateFramerate(float tick);
       void update(float tick);
+      void toggleFramerate();
       void drawAllText();
       void draw();
    private:

@@ -20,20 +20,16 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
-#include <SFML/Window/Input.hpp>
 
 #include "Game.h"
+#include "Control.h"
 
 #define FPS_MAX 60
-
-//#define mIsKey(x,y) (x.Key.Code == Key::y)
-#define mIsKey(x,y) (x.IsKeyDown(Key::y))
 
 using namespace std;
 using namespace sf;
 
 bool running = true;
-bool showFramerate = true;
 bool novid = false;
 int width, height, colorDepth;
 string windowTitle;
@@ -41,6 +37,7 @@ Font hudFont;
 float tick;
 stringstream fpsStream;
 RenderWindow *app;
+Control *gameControl;
 sf::Clock myClock;
 
 void initialize();
@@ -89,51 +86,6 @@ void resize(Event e)
    glViewport(0, 0, e.Size.Width, e.Size.Height);
 }
 
-void controlKeys()
-{
-   const Input& input = app->GetInput();
-   // Keys that are used as controls go here (i.e. activate while held).
-   if (mIsKey(input,W))
-   {
-      cout << "W" << endl;
-   }
-   if (mIsKey(input,A))
-   {
-      cout << "A" << endl;
-   }
-   if (mIsKey(input,S))
-   {
-      cout << "S" << endl;
-   }
-   if (mIsKey(input,D))
-   {
-      cout << "D" << endl;
-   }
-   if (input.IsMouseButtonDown(Mouse::Left))
-   {
-      cout << "LEFT MOUSE" << endl;
-   }
-}
-
-void triggerKeyDown(Event e)
-{
-   // Keys that trigger events go here (i.e. activate once on keypress).
-   if (e.Key.Code == Key::F1)
-   {
-      showFramerate = !showFramerate;
-   }
-}
-
-void triggerKeyUp(Event e)
-{
-   // Same as triggerKeyDown, but for keys that trigger on release.
-   if (e.Key.Code == Key::Q)
-   {
-      //running = false;
-      app->Close();
-   }
-}
-
 void processEvent(Event e)
 {
    // Window resized.
@@ -145,11 +97,11 @@ void processEvent(Event e)
    // Key pressed.
    if (e.Type == Event::KeyPressed)
    {
-      triggerKeyDown(e);
+      gameControl->triggerKeyDown(e);
    }
    else if (e.Type == Event::KeyReleased)
    {
-      triggerKeyUp(e);
+      gameControl->triggerKeyUp(e);
    }
 
    /*
@@ -240,6 +192,7 @@ int main(int argc, char **argv)
    app->Show(!novid);
 
    Game theGame(app);
+   gameControl = new Control(app, &theGame);
 
    // Initialize OpenGL.
    initialize();
@@ -248,7 +201,7 @@ int main(int argc, char **argv)
    while (app->IsOpened())
    {
       // Process events.
-      controlKeys();
+      gameControl->controlKeys();
       while (app->GetEvent(event))
       {
          processEvent(event);
@@ -273,6 +226,7 @@ int main(int argc, char **argv)
    // Clean up.
    app->Close();
    delete app;
+   delete gameControl;
 
    // Exit.
    return EXIT_SUCCESS;

@@ -30,6 +30,24 @@ void Game::addText(std::string varName, String varText)
    textMap.insert(std::pair<std::string, String>(varName, varText));
 }
 
+void Game::toggleTextVisibility(std::string varName)
+{
+   std::map<std::string, String>::iterator it;
+   it = textMap.find(varName);
+   sf::Color newColor = (*it).second.GetColor();
+   int a = newColor.a;
+   // TODO: Make this allow partial text transparency.
+   if (a == 0)
+   {
+      newColor.a = 255;
+   }
+   else
+   {
+      newColor.a = 0;
+   }
+   (*it).second.SetColor(newColor);
+}
+
 void Game::updateText(std::string varName, std::string varText)
 {
    std::map<std::string, String>::iterator it;
@@ -50,6 +68,11 @@ void Game::update(float tick)
 {
    // TODO: Update here.
    updateFramerate(tick);
+}
+
+void Game::toggleFramerate()
+{
+   toggleTextVisibility("fps");
 }
 
 void Game::drawAllText()
